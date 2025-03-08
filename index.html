@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间感知应用</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="current-day">第 0 天</h1>
+            <div id="progress-percentage">0%</div>
+        </header>
+
+        <div class="progress-container">
+            <div class="time-scale">
+                <div class="time-markers">
+                    <!-- 时间刻度标记将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar">
+                    <!-- 进度条片段将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="current-activity-section">
+            <h2>当前活动</h2>
+            <div id="current-activity">无活动</div>
+        </div>
+
+        <div class="stats-section">
+            <h2>活动统计</h2>
+            <div id="activity-stats-container">
+                <!-- 活动统计将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div class="preset-activities-section">
+            <h2>预设活动</h2>
+            <div id="preset-activities-container">
+                <!-- 预设活动按钮将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="activity-form">
+                <input type="text" id="activity-name" placeholder="活动名称">
+                <input type="color" id="activity-color" value="#3498db">
+                <button id="add-activity-btn">添加预设</button>
+            </div>
+        </div>
+
+        <div class="time-editor-section">
+            <h2>编辑时间段</h2>
+            <div class="time-editor">
+                <div class="time-input">
+                    <label for="start-time">开始时间:</label>
+                    <input type="time" id="start-time">
+                </div>
+                <div class="time-input">
+                    <label for="end-time">结束时间:</label>
+                    <input type="time" id="end-time">
+                </div>
+                <div class="activity-selector">
+                    <label for="activity-select">选择活动:</label>
+                    <select id="activity-select">
+                        <option value="">-- 选择活动 --</option>
+                        <option value="default-reset">-- 恢复默认 --</option>
+                        <!-- 活动选项将通过JavaScript动态生成 -->
+                    </select>
+                </div>
+                <button id="apply-time-edit">应用修改</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
