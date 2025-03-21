@@ -66,7 +66,6 @@
 - 纯前端实现，无需后端服务
 - 使用 HTML5 + CSS3 + JavaScript
 - 采用 LocalStorage 进行数据持久化
-- 响应式设计，支持移动设备
 
 
 
