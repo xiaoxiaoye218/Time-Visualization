@@ -5,7 +5,9 @@ let activities = JSON.parse(localStorage.getItem('activities')) || [
     { id: 'rest', name: '休息', color: '#2ecc71' }
 ];
 
-let timeSegments = JSON.parse(localStorage.getItem('timeSegments')) || [];
+// 修改数据结构：使用对象来存储每分钟的活动，键为"日期_分钟"，值为活动ID
+let minuteActivities = JSON.parse(localStorage.getItem('minuteActivities')) || {};
+
 let currentActivity = null;
 let startTime = null;
 
@@ -78,7 +80,8 @@ function initProgressBar() {
     for (let i = 0; i < totalMinutes; i++) {
         const segment = document.createElement('div');
         segment.className = 'progress-segment default-segment';
-        segment.style.width = `${100 / totalMinutes}%`;
+        // 使用flex布局替代固定宽度百分比，确保不会有舍入误差导致的多余部分
+        segment.style.flex = '1';
         segment.dataset.minute = i;
         progressBar.appendChild(segment);
     }
@@ -88,6 +91,93 @@ function initProgressBar() {
     
     // 初始更新进度条
     updateProgressBar();
+
+    // 添加点击事件监听
+    progressBar.addEventListener('click', handleProgressBarClick);
+}
+
+// 处理进度条点击事件
+function handleProgressBarClick(event) {
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    
+    // 计算点击位置对应的分钟数
+    const clickedMinute = Math.floor(percentage * 24 * 60);
+    
+    // 获取当前日期
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 首先检查是否点击了当前正在进行的活动
+    if (currentActivity && startTime) {
+        const startMinute = minuteFromDate(startTime);
+        const now = new Date();
+        const currentMinute = minuteFromDate(now);
+        
+        if (clickedMinute >= startMinute && clickedMinute <= currentMinute) {
+            // 找到对应的活动
+            const activity = activities.find(a => a.id === currentActivity);
+            if (activity) {
+                // 设置时间编辑器的值
+                const startHours = Math.floor(startMinute / 60);
+                const startMinutes = startMinute % 60;
+                const endHours = Math.floor(currentMinute / 60);
+                const endMinutes = currentMinute % 60;
+                
+                // 格式化时间字符串
+                startTimeInput.value = `${String(startHours).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}`;
+                endTimeInput.value = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+                activitySelect.value = currentActivity;
+
+                // 滚动到时间编辑区域
+                document.querySelector('.time-editor-section').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+        }
+    }
+    
+    // 检查点击位置的活动
+    const clickedActivityId = getActivityForMinute(today, clickedMinute);
+    
+    // 如果点击位置没有活动，则不处理
+    if (!clickedActivityId) return;
+    
+    // 找到该活动在连续时间内的开始和结束时间
+    let startMinute = clickedMinute;
+    let endMinute = clickedMinute + 1;  // 初始结束为点击位置+1
+    
+    // 向前查找连续的相同活动
+    while (startMinute > 0) {
+        const prevMinute = startMinute - 1;
+        const prevActivityId = getActivityForMinute(today, prevMinute);
+        if (prevActivityId !== clickedActivityId) break;
+        startMinute = prevMinute;
+    }
+    
+    // 向后查找连续的相同活动
+    while (endMinute < 24 * 60) {
+        const nextActivityId = getActivityForMinute(today, endMinute);
+        if (nextActivityId !== clickedActivityId) break;
+        endMinute++;
+    }
+    
+    // 找到对应的活动
+    const activity = activities.find(a => a.id === clickedActivityId);
+    if (activity) {
+        // 设置时间编辑器的值
+        const startHours = Math.floor(startMinute / 60);
+        const startMinutes = startMinute % 60;
+        const endHours = Math.floor(endMinute / 60);
+        const endMinutes = endMinute % 60;
+        
+        // 格式化时间字符串
+        startTimeInput.value = `${String(startHours).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}`;
+        endTimeInput.value = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+        activitySelect.value = clickedActivityId;
+
+        // 滚动到时间编辑区域
+        document.querySelector('.time-editor-section').scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // 恢复当前活动状态
@@ -113,16 +203,16 @@ function restoreCurrentActivity() {
                 currentActivityElement.style.color = 'white';
             } else {
                 // 如果不是今天开始的，自动结束这个活动
-                const endOfPreviousDay = new Date(startDay + 'T23:59:59');
+                const startMinute = minuteFromDate(startTime);
+                const endOfDayMinute = 23 * 60 + 59; // 23:59
                 
-                // 添加到时间段记录
-                timeSegments.push({
-                    id: Date.now().toString() + '-auto',
-                    activityId: currentActivity,
-                    startMinute: minuteFromDate(startTime),
-                    endMinute: 23 * 60 + 59, // 23:59
-                    date: startDay
-                });
+                // 记录前一天的活动分钟
+                for (let minute = startMinute; minute <= endOfDayMinute; minute++) {
+                    setActivityForMinute(startDay, minute, currentActivity);
+                }
+                
+                // 保存到本地存储
+                saveMinuteActivities();
                 
                 // 重置当前活动
                 currentActivity = null;
@@ -134,9 +224,6 @@ function restoreCurrentActivity() {
                 currentActivityElement.textContent = '无活动';
                 currentActivityElement.style.backgroundColor = '#eee';
                 currentActivityElement.style.color = '#333';
-                
-                // 保存到本地存储
-                saveTimeSegments();
             }
         } else {
             // 活动已不存在，重置当前活动
@@ -167,6 +254,8 @@ function updateProgressBar() {
     const percentage = ((currentMinute * 60 + seconds) / (24 * 60 * 60) * 100).toFixed(2);
     progressPercentage.textContent = `${percentage}%`;
     
+    const today = new Date().toISOString().split('T')[0];
+    
     // 高亮当前时间之前的片段
     const segments = progressBar.querySelectorAll('.progress-segment');
     segments.forEach((segment, index) => {
@@ -180,12 +269,19 @@ function updateProgressBar() {
         }
     });
     
-    // 如果当前有活动，更新最近的片段颜色
+    // 如果当前有活动，临时显示最近的片段颜色（不修改实际数据）
     if (currentActivity && startTime) {
         const activity = activities.find(a => a.id === currentActivity);
         if (activity) {
             const startMinute = minuteFromDate(startTime);
             for (let i = startMinute; i <= currentMinute; i++) {
+                // 检查该分钟是否已经有其他活动
+                const existingActivity = getActivityForMinute(today, i);
+                if (existingActivity && existingActivity !== currentActivity) {
+                    // 如果已有其他活动，跳过这个分钟
+                    continue;
+                }
+                
                 const segment = progressBar.querySelector(`[data-minute="${i}"]`);
                 if (segment) {
                     segment.style.backgroundColor = activity.color;
@@ -201,33 +297,31 @@ function minuteFromDate(date) {
     return date.getHours() * 60 + date.getMinutes();
 }
 
-// 应用已记录的时间段颜色
+// 应用已记录的活动颜色
 function applyTimeSegmentsColors() {
-    // 重置所有片段为默认颜色
     const segments = progressBar.querySelectorAll('.progress-segment');
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 重置所有片段为默认颜色
     segments.forEach(segment => {
         segment.style.backgroundColor = '#ddd';
         segment.classList.add('default-segment');
     });
     
-    // 获取今天的日期
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 为今天记录的时间段设置颜色
-    timeSegments
-        .filter(segment => segment.date === today)
-        .forEach(segment => {
-            const activity = activities.find(a => a.id === segment.activityId);
+    // 为每个分钟设置对应的活动颜色
+    for (let minute = 0; minute < 24 * 60; minute++) {
+        const activityId = getActivityForMinute(today, minute);
+        if (activityId) {
+            const activity = activities.find(a => a.id === activityId);
             if (activity) {
-                for (let i = segment.startMinute; i <= segment.endMinute; i++) {
-                    const segmentElement = progressBar.querySelector(`[data-minute="${i}"]`);
-                    if (segmentElement) {
-                        segmentElement.style.backgroundColor = activity.color;
-                        segmentElement.classList.remove('default-segment');
-                    }
+                const segment = segments[minute];
+                if (segment) {
+                    segment.style.backgroundColor = activity.color;
+                    segment.classList.remove('default-segment');
                 }
             }
-        });
+        }
+    }
 }
 
 // 渲染预设活动按钮
@@ -299,6 +393,7 @@ function updateActivitySelect() {
 // 开始或停止活动
 function toggleActivity(activityId) {
     const now = new Date();
+    const today = now.toISOString().split('T')[0];
     
     // 如果当前没有活动，开始新活动
     if (!currentActivity) {
@@ -315,32 +410,20 @@ function toggleActivity(activityId) {
     } 
     // 如果点击的是当前活动，停止该活动
     else if (currentActivity === activityId) {
-        // 记录活动时间段
         const startMinute = minuteFromDate(startTime);
         const endMinute = minuteFromDate(now);
         
-        // 添加到时间段记录
+        // 记录活动时间
         if (startMinute <= endMinute) {
-            timeSegments.push({
-                id: Date.now().toString(),
-                activityId: currentActivity,
-                startMinute: startMinute,
-                endMinute: endMinute,
-                date: new Date().toISOString().split('T')[0]
-            });
-            
-            // 保存到本地存储
-            saveTimeSegments();
-            
-            // 更新活动统计
-            updateActivityStats();
+            for (let minute = startMinute; minute < endMinute; minute++) {
+                setActivityForMinute(today, minute, currentActivity);
+            }
+            saveMinuteActivities();
         }
         
         // 重置当前活动
         currentActivity = null;
         startTime = null;
-        
-        // 清除本地存储中的当前活动
         localStorage.removeItem('currentActivity');
         localStorage.removeItem('startTime');
         
@@ -350,25 +433,15 @@ function toggleActivity(activityId) {
     }
     // 如果点击的是不同活动，先停止当前活动，再开始新活动
     else {
-        // 记录活动时间段
         const startMinute = minuteFromDate(startTime);
         const endMinute = minuteFromDate(now);
         
-        // 添加到时间段记录
+        // 记录当前活动时间
         if (startMinute <= endMinute) {
-            timeSegments.push({
-                id: Date.now().toString(),
-                activityId: currentActivity,
-                startMinute: startMinute,
-                endMinute: endMinute,
-                date: new Date().toISOString().split('T')[0]
-            });
-            
-            // 保存到本地存储
-            saveTimeSegments();
-            
-            // 更新活动统计
-            updateActivityStats();
+            for (let minute = startMinute; minute < endMinute; minute++) {
+                setActivityForMinute(today, minute, currentActivity);
+            }
+            saveMinuteActivities();
         }
         
         // 开始新活动
@@ -384,9 +457,10 @@ function toggleActivity(activityId) {
         currentActivityElement.style.color = 'white';
     }
     
-    // 应用时间段颜色
+    // 更新UI
     applyTimeSegmentsColors();
     updateProgressBar();
+    updateActivityStats();
 }
 
 // 保存当前活动状态到本地存储
@@ -406,32 +480,28 @@ function updateActivityStats() {
     
     // 计算每个活动的总时间
     const activityTimes = {};
-    const todayDate = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
     
     // 初始化所有活动的时间为0
     activities.forEach(activity => {
         activityTimes[activity.id] = 0;
     });
     
-    // 计算今天每个活动的总时间（分钟）
-    timeSegments
-        .filter(segment => segment.date === todayDate)
-        .forEach(segment => {
-            const duration = segment.endMinute - segment.startMinute;
-            if (activityTimes[segment.activityId] !== undefined) {
-                activityTimes[segment.activityId] += duration;
-            }
-        });
-    
+    // 统计每个分钟的活动
+    for (let minute = 0; minute < 24 * 60; minute++) {
+        const activityId = getActivityForMinute(today, minute);
+        if (activityId && activityTimes[activityId] !== undefined) {
+            activityTimes[activityId]++;
+        }
+    }
+
     // 如果当前有活动，添加当前活动的进行时间
     if (currentActivity && startTime) {
         const now = new Date();
         const startMinute = minuteFromDate(startTime);
         const currentMinute = minuteFromDate(now);
-        const duration = currentMinute - startMinute;
-        
-        if (duration > 0 && activityTimes[currentActivity] !== undefined) {
-            activityTimes[currentActivity] += duration;
+        if (startMinute <= currentMinute) {
+            activityTimes[currentActivity] += (currentMinute - startMinute);
         }
     }
     
@@ -461,7 +531,6 @@ function updateActivityStats() {
         }
     });
     
-    // 如果没有活动统计，显示提示信息
     if (activityStatsContainer.children.length === 0) {
         const noStatsElement = document.createElement('div');
         noStatsElement.textContent = '今天还没有记录任何活动';
@@ -707,36 +776,44 @@ function applyTimeEdit() {
         alert('开始时间不能晚于结束时间');
         return;
     }
-    
-    // 处理恢复默认选项
-    if (activityId === 'default-reset') {
-        // 移除该时间段内的所有记录
-        timeSegments = timeSegments.filter(segment => {
-            // 保留与当前编辑时间段没有重叠的记录
-            return !(segment.startMinute <= endMinute && segment.endMinute >= startMinute);
-        });
-    } else {
-        // 先移除该时间段内的所有记录
-        timeSegments = timeSegments.filter(segment => {
-            // 保留与当前编辑时间段没有重叠的记录
-            return !(segment.startMinute <= endMinute && segment.endMinute >= startMinute);
-        });
-        
-        // 创建新的时间段
-        const newSegment = {
-            id: Date.now().toString(),
-            activityId: activityId,
-            startMinute: startMinute,
-            endMinute: endMinute,
-            date: new Date().toISOString().split('T')[0]
-        };
-        
-        // 添加到时间段记录
-        timeSegments.push(newSegment);
+
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const currentMinute = minuteFromDate(now);
+
+    // 如果编辑的时间段与当前活动重叠，直接结束当前活动
+    if (currentActivity && startTime) {
+        const currentStartMinute = minuteFromDate(startTime);
+        if (startMinute < currentMinute && endMinute > currentStartMinute) {
+            // 先保存当前活动到指定时间
+            for (let minute = currentStartMinute; minute < startMinute; minute++) {
+                setActivityForMinute(today, minute, currentActivity);
+            }
+            
+            // 重置当前活动
+            currentActivity = null;
+            startTime = null;
+            localStorage.removeItem('currentActivity');
+            localStorage.removeItem('startTime');
+            
+            // 更新UI
+            currentActivityElement.textContent = '无活动';
+            currentActivityElement.style.backgroundColor = '#eee';
+            currentActivityElement.style.color = '#333';
+        }
+    }
+
+    // 更新每个分钟的活动
+    for (let minute = startMinute; minute < endMinute; minute++) {
+        if (activityId === 'default-reset') {
+            setActivityForMinute(today, minute, null);
+        } else {
+            setActivityForMinute(today, minute, activityId);
+        }
     }
     
     // 保存到本地存储
-    saveTimeSegments();
+    saveMinuteActivities();
     
     // 更新UI
     applyTimeSegmentsColors();
@@ -754,9 +831,25 @@ function saveActivities() {
     localStorage.setItem('activities', JSON.stringify(activities));
 }
 
-// 保存时间段到本地存储
-function saveTimeSegments() {
-    localStorage.setItem('timeSegments', JSON.stringify(timeSegments));
+// 保存分钟活动数据到本地存储
+function saveMinuteActivities() {
+    localStorage.setItem('minuteActivities', JSON.stringify(minuteActivities));
+}
+
+// 获取指定日期和分钟的活动
+function getActivityForMinute(date, minute) {
+    const key = `${date}_${minute}`;
+    return minuteActivities[key];
+}
+
+// 设置指定日期和分钟的活动
+function setActivityForMinute(date, minute, activityId) {
+    const key = `${date}_${minute}`;
+    if (activityId) {
+        minuteActivities[key] = activityId;
+    } else {
+        delete minuteActivities[key];
+    }
 }
 
 // 事件监听
