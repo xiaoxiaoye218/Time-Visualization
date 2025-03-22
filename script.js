@@ -1,4 +1,6 @@
 // 数据结构
+// 定义预设活动数组，优先从localStorage读取，若不存在则使用默认值
+// 每个活动包含id（唯一标识）、name（显示名称）和color（颜色代码）
 let activities = JSON.parse(localStorage.getItem('activities')) || [
     { id: 'default', name: '学习', color: '#3498db' },
     { id: 'game', name: '玩游戏', color: '#e67e22' },
@@ -6,26 +8,27 @@ let activities = JSON.parse(localStorage.getItem('activities')) || [
 ];
 
 // 修改数据结构：使用对象来存储每分钟的活动，键为"日期_分钟"，值为活动ID
+// {}:创建一个空对象，也就是约等于python中一个空字典        js-Object = python-dict
 let minuteActivities = JSON.parse(localStorage.getItem('minuteActivities')) || {};
 
 let currentActivity = null;
 let startTime = null;
 
-// DOM元素引用
-const progressBar = document.getElementById('progress-bar');
-const progressPercentage = document.getElementById('progress-percentage');
-const currentDayElement = document.getElementById('current-day');
-const currentActivityElement = document.getElementById('current-activity');
-const presetActivitiesContainer = document.getElementById('preset-activities-container');
-const activityNameInput = document.getElementById('activity-name');
-const activityColorInput = document.getElementById('activity-color');
-const addActivityBtn = document.getElementById('add-activity-btn');
-const activitySelect = document.getElementById('activity-select');
-const startTimeInput = document.getElementById('start-time');
-const endTimeInput = document.getElementById('end-time');
-const applyTimeEditBtn = document.getElementById('apply-time-edit');
-const timeMarkersContainer = document.querySelector('.time-markers');
-const activityStatsContainer = document.getElementById('activity-stats-container');
+// DOM元素引用 - 获取页面上各个交互元素的引用，便于后续JavaScript操作
+const progressBar = document.getElementById('progress-bar');                   // 进度条主体，显示一天中各时间段的活动
+const progressPercentage = document.getElementById('progress-percentage');     // 显示当天已过去时间的百分比文本
+const currentDayElement = document.getElementById('current-day');              // 显示当前日期信息（第几天）
+const currentActivityElement = document.getElementById('current-activity');    // 显示当前正在进行的活动名称
+const presetActivitiesContainer = document.getElementById('preset-activities-container'); // 预设活动按钮的容器
+const activityNameInput = document.getElementById('activity-name');            // 添加新活动时输入活动名称的文本框
+const activityColorInput = document.getElementById('activity-color');          // 添加新活动时选择活动颜色的颜色选择器
+const addActivityBtn = document.getElementById('add-activity-btn');            // 添加新预设活动的按钮
+const activitySelect = document.getElementById('activity-select');             // 编辑时间段时选择活动的下拉菜单
+const startTimeInput = document.getElementById('start-time');                  // 编辑时间段时设置开始时间的输入框
+const endTimeInput = document.getElementById('end-time');                      // 编辑时间段时设置结束时间的输入框
+const applyTimeEditBtn = document.getElementById('apply-time-edit');           // 应用时间段编辑的确认按钮
+const timeMarkersContainer = document.querySelector('.time-markers');          // 进度条上方显示时间刻度的容器
+const activityStatsContainer = document.getElementById('activity-stats-container'); // 显示各活动统计信息的容器
 
 // 初始化应用
 function initApp() {
@@ -59,41 +62,39 @@ function initApp() {
     setInterval(updateProgressBar, 1000);
 }
 
-// 创建时间刻度标记
+// 创建时间刻度标记 - 在进度条上方显示时间刻度（如0:00、2:00、4:00等）
 function createTimeMarkers() {
-    timeMarkersContainer.innerHTML = '';
-    for (let i = 0; i <= 24; i += 2) {
-        const marker = document.createElement('div');
-        marker.className = 'time-marker';
-        marker.textContent = `${i}:00`;
-        timeMarkersContainer.appendChild(marker);
+    timeMarkersContainer.innerHTML = ''; // 清空时间标记容器的内容，防止重复创建
+    for (let i = 0; i <= 24; i += 2) { // 从0点到24点，每隔2小时创建一个时间标记
+        const marker = document.createElement('div'); // 创建新的div元素作为时间标记
+        marker.className = 'time-marker'; // 设置CSS类名，用于样式控制
+        marker.textContent = `${i}:00`; // 设置标记内容为"小时:00"格式
+        timeMarkersContainer.appendChild(marker); // 将创建的标记添加到容器中
     }
 }
 
-// 初始化进度条
+// 初始化进度条 - 创建代表一天中每分钟的可视化时间轴，并设置交互功能
 function initProgressBar() {
-    progressBar.innerHTML = '';
+    progressBar.innerHTML = ''; // 清空进度条容器内容，防止重复创建
     
     // 创建1440个片段 (24小时 * 60分钟)
     const totalMinutes = 24 * 60;
     
     for (let i = 0; i < totalMinutes; i++) {
-        const segment = document.createElement('div');
-        segment.className = 'progress-segment default-segment';
+        const segment = document.createElement('div'); // 为每分钟创建一个div元素
+        segment.className = 'progress-segment default-segment'; // 设置CSS类名，用于样式控制
         // 使用flex布局替代固定宽度百分比，确保不会有舍入误差导致的多余部分
-        segment.style.flex = '1';
-        segment.dataset.minute = i;
-        progressBar.appendChild(segment);
+        segment.style.flex = '1'; // 每个片段占用相等的空间，确保总长度精确分配
+        segment.dataset.minute = i; // 设置自定义属性，存储该片段代表的分钟值
+        progressBar.appendChild(segment); // 将片段添加到进度条容器中
     }
     
-    // 应用已记录的活动颜色
-    applyTimeSegmentsColors();
+    applyMinuteActivitiesColors(); // 根据已保存的活动数据，为进度条上的每个时间片段着色
     
-    // 初始更新进度条
-    updateProgressBar();
+    updateProgressBar(); // 根据当前时间更新进度条显示状态
 
     // 添加点击事件监听
-    progressBar.addEventListener('click', handleProgressBarClick);
+    progressBar.addEventListener('click', handleProgressBarClick); // 设置进度条的点击交互，允许用户编辑特定时间段
 }
 
 // 处理进度条点击事件
@@ -107,34 +108,6 @@ function handleProgressBarClick(event) {
     
     // 获取当前日期
     const today = new Date().toISOString().split('T')[0];
-    
-    // 首先检查是否点击了当前正在进行的活动
-    if (currentActivity && startTime) {
-        const startMinute = minuteFromDate(startTime);
-        const now = new Date();
-        const currentMinute = minuteFromDate(now);
-        
-        if (clickedMinute >= startMinute && clickedMinute <= currentMinute) {
-            // 找到对应的活动
-            const activity = activities.find(a => a.id === currentActivity);
-            if (activity) {
-                // 设置时间编辑器的值
-                const startHours = Math.floor(startMinute / 60);
-                const startMinutes = startMinute % 60;
-                const endHours = Math.floor(currentMinute / 60);
-                const endMinutes = currentMinute % 60;
-                
-                // 格式化时间字符串
-                startTimeInput.value = `${String(startHours).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}`;
-                endTimeInput.value = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
-                activitySelect.value = currentActivity;
-
-                // 滚动到时间编辑区域
-                document.querySelector('.time-editor-section').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-        }
-    }
     
     // 检查点击位置的活动
     const clickedActivityId = getActivityForMinute(today, clickedMinute);
@@ -201,20 +174,12 @@ function restoreCurrentActivity() {
                 currentActivityElement.textContent = activity.name;
                 currentActivityElement.style.backgroundColor = activity.color;
                 currentActivityElement.style.color = 'white';
+                
+                // 执行一次updateProgressBar，以便记录已过去的时间
+                updateProgressBar();
             } else {
-                // 如果不是今天开始的，自动结束这个活动
-                const startMinute = minuteFromDate(startTime);
-                const endOfDayMinute = 23 * 60 + 59; // 23:59
-                
-                // 记录前一天的活动分钟
-                for (let minute = startMinute; minute <= endOfDayMinute; minute++) {
-                    setActivityForMinute(startDay, minute, currentActivity);
-                }
-                
-                // 保存到本地存储
-                saveMinuteActivities();
-                
-                // 重置当前活动
+                // 如果不是今天开始的，不再自动记录前一天的活动
+                // 只重置当前活动状态
                 currentActivity = null;
                 startTime = null;
                 localStorage.removeItem('currentActivity');
@@ -269,55 +234,56 @@ function updateProgressBar() {
         }
     });
     
-    // 如果当前有活动，临时显示最近的片段颜色（不修改实际数据）
+    // 如果当前有活动，将过去的分钟记录为该活动（扫描指针思路）
     if (currentActivity && startTime) {
         const activity = activities.find(a => a.id === currentActivity);
         if (activity) {
             const startMinute = minuteFromDate(startTime);
-            for (let i = startMinute; i <= currentMinute; i++) {
-                // 检查该分钟是否已经有其他活动
-                const existingActivity = getActivityForMinute(today, i);
-                if (existingActivity && existingActivity !== currentActivity) {
-                    // 如果已有其他活动，跳过这个分钟
-                    continue;
+            
+            // 如果当前活动已经持续了一段时间，记录过去的分钟
+            if (startMinute < currentMinute) {
+                // 只记录之前没有被记录过的分钟
+                for (let i = startMinute; i < currentMinute; i++) {
+                    // 检查是否已经有其他活动
+                    if (!getActivityForMinute(today, i)) {
+                        // 记录该分钟的活动
+                        setActivityForMinute(today, i, currentActivity);
+                    }
                 }
+                // 保存记录
+                saveMinuteActivities();
                 
-                const segment = progressBar.querySelector(`[data-minute="${i}"]`);
-                if (segment) {
-                    segment.style.backgroundColor = activity.color;
-                    segment.classList.remove('default-segment');
-                }
+                // 重新应用颜色（现在所有记录都已保存）
+                applyMinuteActivitiesColors();
             }
         }
     }
 }
 
-// 将日期转换为当天的分钟数 (0-1439)
+// 将data对象转换为当天的分钟数 (0-1439)
 function minuteFromDate(date) {
     return date.getHours() * 60 + date.getMinutes();
 }
 
-// 应用已记录的活动颜色
-function applyTimeSegmentsColors() {
-    const segments = progressBar.querySelectorAll('.progress-segment');
-    const today = new Date().toISOString().split('T')[0];
+// 应用活动颜色到进度条 - 根据minuteActivities数据为进度条上的每个时间片段设置对应活动的颜色
+function applyMinuteActivitiesColors() {
+    const segments = progressBar.querySelectorAll('.progress-segment'); // 获取所有进度条片段DOM元素
+    const today = new Date().toISOString().split('T')[0]; // 获取当前日期字符串，格式为"YYYY-MM-DD"
     
-    // 重置所有片段为默认颜色
-    segments.forEach(segment => {
-        segment.style.backgroundColor = '#ddd';
-        segment.classList.add('default-segment');
+    segments.forEach(segment => { // 重置所有片段为默认颜色，清除之前的活动颜色设置
+        segment.style.backgroundColor = '#ddd'; // 设置为默认的浅灰色背景
+        segment.classList.add('default-segment'); // 添加默认片段CSS类，用于后续标识未赋值的片段
     });
     
-    // 为每个分钟设置对应的活动颜色
-    for (let minute = 0; minute < 24 * 60; minute++) {
-        const activityId = getActivityForMinute(today, minute);
-        if (activityId) {
-            const activity = activities.find(a => a.id === activityId);
-            if (activity) {
-                const segment = segments[minute];
-                if (segment) {
-                    segment.style.backgroundColor = activity.color;
-                    segment.classList.remove('default-segment');
+    for (let minute = 0; minute < 24 * 60; minute++) { // 遍历一天中的所有分钟(0-1439)
+        const activityId = getActivityForMinute(today, minute); // 调用getActivityForMinute获取该分钟记录的活动ID
+        if (activityId) { // 如果该分钟有记录的活动
+            const activity = activities.find(a => a.id === activityId); // 在activities数组中查找对应ID的活动对象
+            if (activity) { // 如果找到了对应的活动
+                const segment = segments[minute]; // 获取对应分钟的进度条片段DOM元素
+                if (segment) { // 确保DOM元素存在
+                    segment.style.backgroundColor = activity.color; // 设置片段背景色为活动颜色
+                    segment.classList.remove('default-segment'); // 移除默认片段标识类
                 }
             }
         }
@@ -410,16 +376,7 @@ function toggleActivity(activityId) {
     } 
     // 如果点击的是当前活动，停止该活动
     else if (currentActivity === activityId) {
-        const startMinute = minuteFromDate(startTime);
-        const endMinute = minuteFromDate(now);
-        
-        // 记录活动时间
-        if (startMinute <= endMinute) {
-            for (let minute = startMinute; minute < endMinute; minute++) {
-                setActivityForMinute(today, minute, currentActivity);
-            }
-            saveMinuteActivities();
-        }
+        // 当前活动已经在updateProgressBar中被记录，这里只需要停止活动
         
         // 重置当前活动
         currentActivity = null;
@@ -433,16 +390,7 @@ function toggleActivity(activityId) {
     }
     // 如果点击的是不同活动，先停止当前活动，再开始新活动
     else {
-        const startMinute = minuteFromDate(startTime);
-        const endMinute = minuteFromDate(now);
-        
-        // 记录当前活动时间
-        if (startMinute <= endMinute) {
-            for (let minute = startMinute; minute < endMinute; minute++) {
-                setActivityForMinute(today, minute, currentActivity);
-            }
-            saveMinuteActivities();
-        }
+        // 当前活动已经在updateProgressBar中被记录，这里只需要切换活动
         
         // 开始新活动
         currentActivity = activityId;
@@ -458,9 +406,7 @@ function toggleActivity(activityId) {
     }
     
     // 更新UI
-    applyTimeSegmentsColors();
     updateProgressBar();
-    updateActivityStats();
 }
 
 // 保存当前活动状态到本地存储
@@ -492,16 +438,6 @@ function updateActivityStats() {
         const activityId = getActivityForMinute(today, minute);
         if (activityId && activityTimes[activityId] !== undefined) {
             activityTimes[activityId]++;
-        }
-    }
-
-    // 如果当前有活动，添加当前活动的进行时间
-    if (currentActivity && startTime) {
-        const now = new Date();
-        const startMinute = minuteFromDate(startTime);
-        const currentMinute = minuteFromDate(now);
-        if (startMinute <= currentMinute) {
-            activityTimes[currentActivity] += (currentMinute - startMinute);
         }
     }
     
@@ -701,7 +637,7 @@ function editActivity(activityId) {
         // 更新UI
         renderPresetActivities();
         updateActivitySelect();
-        applyTimeSegmentsColors();
+        applyMinuteActivitiesColors();
         updateProgressBar();
         updateActivityStats();
         
@@ -723,8 +659,15 @@ function deleteActivity(activityId) {
     // 从活动列表中移除
     activities = activities.filter(a => a.id !== activityId);
     
-    // 移除相关的时间段
-    timeSegments = timeSegments.filter(segment => segment.activityId !== activityId);
+    // 移除相关的时间记录
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 遍历所有分钟，删除与该活动相关的记录
+    Object.keys(minuteActivities).forEach(key => {
+        if (minuteActivities[key] === activityId) {
+            delete minuteActivities[key];
+        }
+    });
     
     // 如果删除的是当前活动，重置当前活动
     if (currentActivity === activityId) {
@@ -739,12 +682,12 @@ function deleteActivity(activityId) {
     
     // 保存到本地存储
     saveActivities();
-    saveTimeSegments();
+    saveMinuteActivities();
     
     // 更新UI
     renderPresetActivities();
     updateActivitySelect();
-    applyTimeSegmentsColors();
+    applyMinuteActivitiesColors();
     updateProgressBar();
     updateActivityStats();
 }
@@ -781,15 +724,11 @@ function applyTimeEdit() {
     const now = new Date();
     const currentMinute = minuteFromDate(now);
 
-    // 如果编辑的时间段与当前活动重叠，直接结束当前活动
+    // 如果编辑的时间段包含当前时间，且当前有活动，需要重置当前活动
     if (currentActivity && startTime) {
         const currentStartMinute = minuteFromDate(startTime);
-        if (startMinute < currentMinute && endMinute > currentStartMinute) {
-            // 先保存当前活动到指定时间
-            for (let minute = currentStartMinute; minute < startMinute; minute++) {
-                setActivityForMinute(today, minute, currentActivity);
-            }
-            
+        // 如果编辑时间段与当前活动的开始时间有重叠，则停止当前活动
+        if (startMinute <= currentStartMinute && endMinute > currentStartMinute) {
             // 重置当前活动
             currentActivity = null;
             startTime = null;
@@ -816,7 +755,7 @@ function applyTimeEdit() {
     saveMinuteActivities();
     
     // 更新UI
-    applyTimeSegmentsColors();
+    applyMinuteActivitiesColors();
     updateProgressBar();
     updateActivityStats();
     
@@ -853,8 +792,9 @@ function setActivityForMinute(date, minute, activityId) {
 }
 
 // 事件监听
-addActivityBtn.addEventListener('click', addActivity);
-applyTimeEditBtn.addEventListener('click', applyTimeEdit);
+// 给 DOM 元素添加点击事件监听器。当用户点击对应的按钮时，会触发绑定的函数
+addActivityBtn.addEventListener('click', addActivity);          //"添加预设"增加活动按钮
+applyTimeEditBtn.addEventListener('click', applyTimeEdit);      //"应用修改"时间段编辑按钮
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', initApp); 

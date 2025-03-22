@@ -1,281 +1,369 @@
+/* 通用样式 - 应用于所有元素 */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    margin: 0;           /* 清除所有元素的外边距 */
+    padding: 0;          /* 清除所有元素的内边距 */
+    box-sizing: border-box;  /* 使元素的宽度和高度包含内边距和边框，而不是添加到宽高上 */
+    font-family: 'Arial', sans-serif;  /* 设置所有文本为Arial字体，如果不可用则使用任何无衬线字体 */
 }
+/* 星号(*)是通配选择器，匹配文档中的所有元素 */
 
+/* body元素样式 - 整个页面的背景和基本文本样式 */
 body {
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
+    background-color: #f5f5f5;  /* 设置浅灰色背景 */
+    color: #333;                /* 设置深灰色文本颜色 */
+    line-height: 1.6;           /* 设置行高为字体大小的1.6倍，提高可读性 */
+    padding: 20px;              /* 页面四周添加20px的内边距 */
 }
+/* body是元素选择器，直接匹配HTML文档中的<body>标签 */
 
+/* 主容器样式 - 包含页面所有内容的容器 */
 .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    max-width: 1000px;         /* 设置最大宽度为1000px */
+    margin: 0 auto;            /* 上下边距为0，左右自动居中 */
+    background: white;         /* 设置白色背景 */
+    border-radius: 10px;       /* 设置10px的圆角边框 */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);  /* 添加轻微阴影效果 */
+    padding: 20px;             /* 容器内部四周添加20px的内边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="container"的元素 */
 
+/* 页眉样式 - 页面顶部包含标题和进度百分比的区域 */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
+    display: flex;                /* 使用弹性盒子布局 */
+    justify-content: space-between;  /* 子元素左右两端对齐 */
+    align-items: center;          /* 子元素垂直居中对齐 */
+    margin-bottom: 20px;          /* 底部添加20px的外边距 */
+    padding-bottom: 15px;         /* 底部添加15px的内边距 */
+    border-bottom: 1px solid #eee;  /* 底部添加1px浅灰色边框线 */
 }
+/* header是元素选择器，直接匹配HTML文档中的<header>标签 */
 
+/* 标题样式 - h1和h2标题元素 */
 h1, h2 {
-    color: #444;
+    color: #444;    /* 设置标题文本为深灰色 */
 }
+/* 逗号(,)表示分组选择器，这里同时选择了h1和h2元素，应用相同的样式 */
 
+/* 进度百分比显示样式 - 显示当前时间进度的百分比文本 */
 #progress-percentage {
-    font-size: 24px;
-    font-weight: bold;
-    color: #7159c1;
+    font-size: 24px;       /* 设置字体大小为24px */
+    font-weight: bold;     /* 设置文本为粗体 */
+    color: #7159c1;        /* 设置文本为紫色 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="progress-percentage"的唯一元素 */
 
+/* 进度容器样式 - 包含时间刻度和进度条的区域 */
 .progress-container {
-    margin-bottom: 30px;
+    margin-bottom: 30px;   /* 底部添加30px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="progress-container"的元素 */
 
+/* 时间刻度样式 - 进度条上方的时间刻度区域 */
 .time-scale {
-    margin-bottom: 5px;
+    margin-bottom: 5px;    /* 底部添加5px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-scale"的元素 */
 
+/* 时间标记容器样式 - 包含时间刻度标记的容器 */
 .time-markers {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 5px;
+    display: flex;              /* 使用弹性盒子布局 */
+    justify-content: space-between;  /* 子元素均匀分布 */
+    padding: 0 5px;             /* 左右添加5px的内边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-markers"的元素 */
 
+/* 时间标记样式 - 每个时间点的标记文本 */
 .time-marker {
-    font-size: 10px;
-    color: #888;
-    position: relative;
+    font-size: 10px;       /* 设置字体大小为10px */
+    color: #888;           /* 设置文本为灰色 */
+    position: relative;    /* 设置为相对定位，便于精确控制位置 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-marker"的元素 */
 
+/* 进度条容器样式 - 进度条的外层容器 */
 .progress-bar-container {
-    height: 40px;
-    background-color: #eee;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
+    height: 40px;              /* 设置高度为40px */
+    background-color: #eee;    /* 设置浅灰色背景 */
+    border-radius: 8px;        /* 设置8px的圆角边框 */
+    overflow: hidden;          /* 隐藏超出容器的内容 */
+    position: relative;        /* 设置为相对定位 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="progress-bar-container"的元素 */
 
+/* 进度条样式 - 实际显示进度的条形元素 */
 #progress-bar {
-    height: 100%;
-    display: flex;
-    width: 100%;
-    flex-wrap: nowrap;
+    height: 100%;         /* 高度占满父容器 */
+    display: flex;         /* 使用弹性盒子布局 */
+    width: 100%;          /* 宽度占满父容器 */
+    flex-wrap: nowrap;     /* 禁止子元素换行 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="progress-bar"的唯一元素 */
 
+/* 进度条片段样式 - 进度条中的每个时间片段 */
 .progress-segment {
-    height: 100%;
-    transition: background-color 0.3s;
-    min-width: 0;
+    height: 100%;                          /* 高度占满父容器 */
+    transition: background-color 0.3s;     /* 背景色变化时添加0.3秒的过渡效果 */
+    min-width: 0;                          /* 允许片段缩小到0宽度 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="progress-segment"的元素 */
 
+/* 默认片段样式 - 未分配活动的时间片段 */
 .default-segment {
-    background-color: #ddd;
+    background-color: #ddd;    /* 设置为浅灰色背景 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="default-segment"的元素 */
 
+/* 当前活动区域样式 - 显示当前正在进行的活动 */
 .current-activity-section {
-    margin-bottom: 30px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    text-align: center;
+    margin-bottom: 30px;      /* 底部添加30px的外边距 */
+    padding: 15px;            /* 四周添加15px的内边距 */
+    background-color: #f9f9f9;  /* 设置为极浅灰色背景 */
+    border-radius: 8px;       /* 设置8px的圆角边框 */
+    text-align: center;       /* 文本居中对齐 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="current-activity-section"的元素 */
 
+/* 当前活动显示样式 - 显示当前活动名称的元素 */
 #current-activity {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    background: #eee;
+    font-size: 18px;         /* 设置字体大小为18px */
+    font-weight: bold;       /* 设置文本为粗体 */
+    margin-top: 10px;        /* 顶部添加10px的外边距 */
+    padding: 10px;           /* 四周添加10px的内边距 */
+    border-radius: 5px;      /* 设置5px的圆角边框 */
+    background: #eee;        /* 设置浅灰色背景 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="current-activity"的唯一元素 */
 
+/* 统计区域样式 - 显示活动统计数据的区域 */
 .stats-section {
-    margin-bottom: 30px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    margin-bottom: 30px;      /* 底部添加30px的外边距 */
+    padding: 15px;            /* 四周添加15px的内边距 */
+    background-color: #f9f9f9;  /* 设置为极浅灰色背景 */
+    border-radius: 8px;        /* 设置8px的圆角边框 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="stats-section"的元素 */
 
+/* 活动统计容器样式 - 包含各个活动统计卡片的容器 */
 #activity-stats-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 15px;
+    display: flex;            /* 使用弹性盒子布局 */
+    flex-wrap: wrap;          /* 允许子元素在需要时换行 */
+    gap: 10px;                /* 设置子元素之间的间距为10px */
+    margin-top: 15px;         /* 顶部添加15px的外边距 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="activity-stats-container"的唯一元素 */
 
+/* 活动统计卡片样式 - 每个活动的统计信息卡片 */
 .activity-stat {
-    padding: 10px;
-    border-radius: 5px;
-    flex: 1;
-    min-width: 150px;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;           /* 四周添加10px的内边距 */
+    border-radius: 5px;      /* 设置5px的圆角边框 */
+    flex: 1;                 /* 弹性增长系数为1，使卡片平均分配空间 */
+    min-width: 150px;        /* 设置最小宽度为150px */
+    color: white;            /* 设置文本为白色 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 添加轻微阴影效果 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-stat"的元素 */
 
+/* 活动统计名称样式 - 活动统计卡片中的活动名称 */
 .activity-stat-name {
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-weight: bold;       /* 设置文本为粗体 */
+    margin-bottom: 5px;      /* 底部添加5px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-stat-name"的元素 */
 
+/* 活动统计时间样式 - 活动统计卡片中的时间数据 */
 .activity-stat-time {
-    font-size: 16px;
+    font-size: 16px;         /* 设置字体大小为16px */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-stat-time"的元素 */
 
+/* 预设活动区域样式 - 包含预设活动按钮的区域 */
 .preset-activities-section {
-    margin-bottom: 30px;
+    margin-bottom: 30px;     /* 底部添加30px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="preset-activities-section"的元素 */
 
+/* 预设活动容器样式 - 包含各个预设活动按钮的容器 */
 #preset-activities-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    display: flex;           /* 使用弹性盒子布局 */
+    flex-wrap: wrap;         /* 允许子元素在需要时换行 */
+    gap: 10px;               /* 设置子元素之间的间距为10px */
+    margin-bottom: 15px;     /* 底部添加15px的外边距 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="preset-activities-container"的唯一元素 */
 
+/* 活动按钮样式 - 预设活动的按钮 */
 .activity-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s;
+    padding: 8px 15px;        /* 上下8px、左右15px的内边距 */
+    border: none;             /* 移除边框 */
+    border-radius: 5px;       /* 设置5px的圆角边框 */
+    color: white;             /* 设置文本为白色 */
+    font-weight: bold;        /* 设置文本为粗体 */
+    cursor: pointer;          /* 鼠标悬停时显示手型光标 */
+    display: flex;            /* 使用弹性盒子布局 */
+    align-items: center;      /* 子元素垂直居中对齐 */
+    transition: all 0.2s;     /* 所有属性变化时添加0.2秒的过渡效果 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-button"的元素 */
 
+/* 活动按钮悬停效果 - 鼠标悬停在活动按钮上时的样式 */
 .activity-button:hover {
-    opacity: 0.9;
+    opacity: 0.9;             /* 设置透明度为90%，产生轻微的暗淡效果 */
 }
+/* 冒号(:)表示伪类选择器，用于选择元素的特定状态；
+   :hover是一种伪类，表示鼠标指针悬停在元素上时的状态；
+   .activity-button:hover组合选择器表示当鼠标悬停在类名为activity-button的元素上时应用的样式 */
 
+/* 活动名称样式 - 活动按钮中的活动名称文本 */
 .activity-button .activity-name {
-    margin-right: 10px;
+    margin-right: 10px;       /* 右侧添加10px的外边距 */
 }
+/* 空格表示后代选择器，选择类名为activity-button元素内部的类名为activity-name的子元素 */
 
+/* 编辑和删除图标样式 - 活动按钮中的编辑和删除图标 */
 .activity-button .edit-icon,
 .activity-button .delete-icon {
-    cursor: pointer;
-    margin-left: 5px;
-    font-size: 14px;
+    cursor: pointer;          /* 鼠标悬停时显示手型光标 */
+    margin-left: 5px;         /* 左侧添加5px的外边距 */
+    font-size: 14px;          /* 设置字体大小为14px */
 }
+/* 空格表示后代选择器，这里分别选择了类名为activity-button元素内部的类名为edit-icon和delete-icon的子元素 */
 
+/* 活动表单样式 - 添加新活动的表单 */
 .activity-form {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    display: flex;            /* 使用弹性盒子布局 */
+    gap: 10px;                /* 设置子元素之间的间距为10px */
+    margin-top: 15px;         /* 顶部添加15px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-form"的元素 */
 
+/* 活动名称输入框样式 - 输入活动名称的文本框 */
 #activity-name {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    flex: 1;                  /* 弹性增长系数为1，占用剩余空间 */
+    padding: 8px;             /* 四周添加8px的内边距 */
+    border: 1px solid #ddd;   /* 添加1px浅灰色边框 */
+    border-radius: 5px;       /* 设置5px的圆角边框 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="activity-name"的唯一元素 */
 
+/* 活动颜色选择器样式 - 选择活动颜色的颜色选择器 */
 #activity-color {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    width: 40px;              /* 设置宽度为40px */
+    height: 40px;             /* 设置高度为40px */
+    padding: 0;               /* 移除内边距 */
+    border: 1px solid #ddd;   /* 添加1px浅灰色边框 */
+    border-radius: 5px;       /* 设置5px的圆角边框 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="activity-color"的唯一元素 */
 
+/* 添加活动按钮样式 - 提交新活动的按钮 */
 #add-activity-btn {
-    padding: 8px 15px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 8px 15px;        /* 上下8px、左右15px的内边距 */
+    background-color: #3498db; /* 设置蓝色背景 */
+    color: white;             /* 设置文本为白色 */
+    border: none;             /* 移除边框 */
+    border-radius: 5px;       /* 设置5px的圆角边框 */
+    cursor: pointer;          /* 鼠标悬停时显示手型光标 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="add-activity-btn"的唯一元素 */
 
+/* 添加活动按钮悬停效果 - 鼠标悬停在添加活动按钮上时的样式 */
 #add-activity-btn:hover {
-    background-color: #2980b9;
+    background-color: #2980b9; /* 设置为深蓝色背景，产生按下效果 */
 }
+/* 冒号(:)表示伪类选择器，:hover伪类选择鼠标悬停状态；
+   整个选择器匹配当鼠标悬停在id为add-activity-btn的元素上时应用的样式 */
 
+/* 时间编辑区域样式 - 编辑时间段的区域 */
 .time-editor-section {
-    margin-bottom: 20px;
+    margin-bottom: 20px;      /* 底部添加20px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-editor-section"的元素 */
 
+/* 时间编辑器样式 - 编辑时间的表单 */
 .time-editor {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: end;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    display: flex;            /* 使用弹性盒子布局 */
+    flex-wrap: wrap;          /* 允许子元素在需要时换行 */
+    gap: 15px;                /* 设置子元素之间的间距为15px */
+    align-items: end;         /* 子元素底部对齐 */
+    padding: 15px;            /* 四周添加15px的内边距 */
+    background-color: #f9f9f9; /* 设置为极浅灰色背景 */
+    border-radius: 8px;       /* 设置8px的圆角边框 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-editor"的元素 */
 
+/* 时间输入组件样式 - 时间输入的容器 */
 .time-input {
-    display: flex;
-    flex-direction: column;
+    display: flex;            /* 使用弹性盒子布局 */
+    flex-direction: column;   /* 子元素垂直排列 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="time-input"的元素 */
 
+/* 标签样式 - 时间输入和活动选择器的标签 */
 .time-input label, 
 .activity-selector label {
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #666;
+    margin-bottom: 5px;       /* 底部添加5px的外边距 */
+    font-size: 14px;          /* 设置字体大小为14px */
+    color: #666;              /* 设置文本为中灰色 */
 }
+/* 逗号(,)用于分组选择器，这里选择了两类元素：.time-input内的label元素和.activity-selector内的label元素 */
 
+/* 输入框和选择器样式 - 时间输入框和活动下拉选择器 */
 .time-input input, 
 .activity-selector select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 8px;             /* 四周添加8px的内边距 */
+    border: 1px solid #ddd;   /* 添加1px浅灰色边框 */
+    border-radius: 5px;       /* 设置5px的圆角边框 */
 }
+/* 逗号(,)用于分组选择器，这里选择了两类元素：.time-input内的input元素和.activity-selector内的select元素 */
 
+/* 应用时间编辑按钮样式 - 提交时间编辑的按钮 */
 #apply-time-edit {
-    padding: 8px 15px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 8px 15px;         /* 上下8px、左右15px的内边距 */
+    background-color: #2ecc71; /* 设置绿色背景 */
+    color: white;              /* 设置文本为白色 */
+    border: none;              /* 移除边框 */
+    border-radius: 5px;        /* 设置5px的圆角边框 */
+    cursor: pointer;           /* 鼠标悬停时显示手型光标 */
 }
+/* 井号(#)开头表示ID选择器，匹配具有id="apply-time-edit"的唯一元素 */
 
+/* 应用时间编辑按钮悬停效果 - 鼠标悬停在应用时间编辑按钮上时的样式 */
 #apply-time-edit:hover {
-    background-color: #27ae60;
+    background-color: #27ae60; /* 设置为深绿色背景，产生按下效果 */
 }
+/* 冒号(:)表示伪类选择器，:hover伪类表示鼠标悬停状态；
+   整个选择器匹配当鼠标悬停在id为apply-time-edit的元素上时应用的样式 */
 
+/* 活动颜色选择器容器样式 - 用于编辑活动时的颜色选择器容器 */
 .activity-color-picker {
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
+    display: flex;             /* 使用弹性盒子布局 */
+    flex-direction: column;    /* 子元素垂直排列 */
+    margin-top: 10px;          /* 顶部添加10px的外边距 */
 }
+/* 点号(.)开头表示类选择器，匹配所有class="activity-color-picker"的元素 */
 
+/* 活动颜色选择器标签样式 - 颜色选择器的标签 */
 .activity-color-picker label {
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #666;
+    margin-bottom: 5px;        /* 底部添加5px的外边距 */
+    font-size: 14px;           /* 设置字体大小为14px */
+    color: #666;               /* 设置文本为中灰色 */
 }
+/* 空格表示后代选择器，选择class="activity-color-picker"元素内的label元素 */
 
-/* 响应式设计 */
+/* 响应式设计规则 - 针对移动设备的样式调整 */
 @media (max-width: 768px) {
     .time-editor {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column;     /* 子元素垂直排列 */
+        align-items: stretch;       /* 子元素宽度拉伸填满容器 */
     }
     
     .activity-form {
-        flex-direction: column;
+        flex-direction: column;     /* 子元素垂直排列 */
     }
     
     #activity-color {
-        width: 100%;
+        width: 100%;               /* 宽度占满父容器 */
     }
-} 
+}
+/* @media是媒体查询规则，用于根据设备特性（这里是视口宽度）应用不同的样式；
+   (max-width: 768px)表示当视口宽度小于或等于768px时（如手机和平板）应用括号内的样式规则 */ 
