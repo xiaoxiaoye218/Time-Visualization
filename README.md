@@ -64,7 +64,7 @@
 ## 技术实现
 
 - 纯前端实现，无需后端服务
-- 使用 HTML5 + CSS3 + JavaScript
+- 使用 HTML + CSS + JavaScript
 - 采用 LocalStorage 进行数据持久化
 
 
